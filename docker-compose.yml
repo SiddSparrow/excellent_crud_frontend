@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    ports:
+      - '4200:80'
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build: ../crud_backend
+    ports:
+      - '3000:3000'
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=crud_user
+      - DB_PASSWORD=crud_pass
+      - DB_DATABASE=crud_db
+      - JWT_SECRET=change-me-in-production
+      - JWT_EXPIRES_IN=1d
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: crud_user
+      POSTGRES_PASSWORD: crud_pass
+      POSTGRES_DB: crud_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
