@@ -1,0 +1,123 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>{{ isEdit ? 'Editar Produto' : 'Novo Produto' }}</h2>
+  <a routerLink="/produtos" class="btn btn-secondary">Voltar</a>
+</div>
+
+@if (loading) {
+  <app-loading-spinner />
+} @else {
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="descricao" class="form-label">Descrição</label>
+        <input
+          type="text"
+          id="descricao"
+          class="form-control"
+          formControlName="descricao"
+          [class.is-invalid]="form.controls.descricao.touched && form.controls.descricao.invalid"
+        />
+        @if (form.controls.descricao.touched && form.controls.descricao.errors?.['required']) {
+          <div class="invalid-feedback">Descrição é obrigatória.</div>
+        }
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label for="valorVenda" class="form-label">Valor de Venda (R$)</label>
+        <input
+          type="number"
+          id="valorVenda"
+          class="form-control"
+          formControlName="valorVenda"
+          step="0.01"
+          min="0"
+          [class.is-invalid]="form.controls.valorVenda.touched && form.controls.valorVenda.invalid"
+        />
+        @if (form.controls.valorVenda.touched && form.controls.valorVenda.errors?.['required']) {
+          <div class="invalid-feedback">Valor é obrigatório.</div>
+        }
+        @if (form.controls.valorVenda.touched && form.controls.valorVenda.errors?.['min']) {
+          <div class="invalid-feedback">Valor deve ser positivo.</div>
+        }
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label for="estoque" class="form-label">Estoque</label>
+        <input
+          type="number"
+          id="estoque"
+          class="form-control"
+          formControlName="estoque"
+          min="0"
+          [class.is-invalid]="form.controls.estoque.touched && form.controls.estoque.invalid"
+        />
+        @if (form.controls.estoque.touched && form.controls.estoque.errors?.['required']) {
+          <div class="invalid-feedback">Estoque é obrigatório.</div>
+        }
+      </div>
+    </div>
+
+    <!-- Imagens existentes (somente no edit) -->
+    @if (isEdit && existingImages.length > 0) {
+      <div class="mb-3">
+        <label class="form-label">Imagens Atuais</label>
+        <div class="d-flex flex-wrap gap-2">
+          @for (imagem of existingImages; track imagem.id) {
+            <div class="position-relative">
+              <img
+                [src]="getImageUrl(imagem.path)"
+                alt="Imagem do produto"
+                class="img-thumbnail"
+                style="width: 120px; height: 120px; object-fit: cover;"
+              />
+              <button
+                type="button"
+                class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                (click)="removeExistingImage(imagem)"
+                title="Remover imagem"
+              >
+                &times;
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Upload de novas imagens -->
+    <div class="mb-3">
+      <label for="imagens" class="form-label">
+        {{ isEdit ? 'Adicionar Novas Imagens' : 'Imagens' }}
+      </label>
+      <input
+        type="file"
+        id="imagens"
+        class="form-control"
+        multiple
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        (change)="onFilesSelected($event)"
+      />
+      <div class="form-text">Formatos aceitos: JPG, PNG, GIF, WebP. Máximo 5MB por arquivo.</div>
+      @if (selectedFiles.length > 0) {
+        <div class="mt-2">
+          <small class="text-muted">{{ selectedFiles.length }} arquivo(s) selecionado(s)</small>
+        </div>
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="saving || uploading">
+      @if (saving || uploading) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      @if (uploading) {
+        Enviando imagens...
+      } @else {
+        {{ isEdit ? 'Atualizar' : 'Cadastrar' }}
+      }
+    </button>
+  </form>
+}

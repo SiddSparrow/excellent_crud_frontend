@@ -1,0 +1,60 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Pedidos</h2>
+  <a routerLink="/pedidos/novo" class="btn btn-primary">Novo Pedido</a>
+</div>
+
+@if (loading) {
+  <app-loading-spinner />
+} @else {
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Itens</th>
+          <th>Total</th>
+          <th>Data</th>
+          @if (authService.isAdmin()) {
+            <th style="width: 100px">Ações</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (pedido of pedidos; track pedido.id) {
+          <tr>
+            <td>{{ pedido.id.substring(0, 8) }}...</td>
+            <td>{{ pedido.cliente.razaoSocial || '-' }}</td>
+            <td>{{ pedido.itens.length || 0 }}</td>
+            <td>{{ pedido.total | currency: 'BRL' }}</td>
+            <td>{{ pedido.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            @if (authService.isAdmin()) {
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="onDelete(pedido)">
+                  Excluir
+                </button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="authService.isAdmin() ? 6 : 5" class="text-center">
+              Nenhum pedido encontrado.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (meta.totalPages > 1) {
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        [collectionSize]="meta.total"
+        [page]="meta.page"
+        [pageSize]="meta.limit"
+        (pageChange)="onPageChange($event)"
+      />
+    </div>
+  }
+}

@@ -1,0 +1,85 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>{{ isEdit ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+  <a routerLink="/clientes" class="btn btn-secondary">Voltar</a>
+</div>
+
+@if (loading) {
+  <app-loading-spinner />
+} @else {
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="cnpj" class="form-label">CNPJ</label>
+        <div class="input-group">
+          <input
+            type="text"
+            id="cnpj"
+            class="form-control"
+            formControlName="cnpj"
+            placeholder="00.000.000/0000-00"
+            [class.is-invalid]="form.controls.cnpj.touched && form.controls.cnpj.invalid"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="lookupCnpj()"
+            [disabled]="lookingUp"
+          >
+            @if (lookingUp) {
+              <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+              Buscar
+            }
+          </button>
+          @if (form.controls.cnpj.touched && form.controls.cnpj.errors?.['required']) {
+            <div class="invalid-feedback">CNPJ é obrigatório.</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="razaoSocial" class="form-label">Razão Social</label>
+        <input
+          type="text"
+          id="razaoSocial"
+          class="form-control"
+          formControlName="razaoSocial"
+          [class.is-invalid]="form.controls.razaoSocial.touched && form.controls.razaoSocial.invalid"
+        />
+        @if (form.controls.razaoSocial.touched && form.controls.razaoSocial.errors?.['required']) {
+          <div class="invalid-feedback">Razão Social é obrigatória.</div>
+        }
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          formControlName="email"
+          [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.errors?.['required']) {
+          <div class="invalid-feedback">E-mail é obrigatório.</div>
+        }
+        @if (form.controls.email.touched && form.controls.email.errors?.['email']) {
+          <div class="invalid-feedback">E-mail inválido.</div>
+        }
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="saving">
+      @if (saving) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      {{ isEdit ? 'Atualizar' : 'Cadastrar' }}
+    </button>
+  </form>
+}

@@ -1,0 +1,117 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Novo Pedido</h2>
+  <a routerLink="/pedidos" class="btn btn-secondary">Voltar</a>
+</div>
+
+@if (loading) {
+  <app-loading-spinner />
+} @else {
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Seleção de Cliente -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <label for="clienteId" class="form-label">Cliente</label>
+        <select
+          id="clienteId"
+          class="form-select"
+          formControlName="clienteId"
+          [class.is-invalid]="form.controls.clienteId.touched && form.controls.clienteId.invalid"
+        >
+          <option value="">Selecione um cliente</option>
+          @for (cliente of clientes; track cliente.id) {
+            <option [value]="cliente.id">{{ cliente.razaoSocial }} - {{ cliente.cnpj }}</option>
+          }
+        </select>
+        @if (form.controls.clienteId.touched && form.controls.clienteId.errors?.['required']) {
+          <div class="invalid-feedback">Cliente é obrigatório.</div>
+        }
+      </div>
+    </div>
+
+    <!-- Itens do Pedido -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5>Itens do Pedido</h5>
+        <button type="button" class="btn btn-success btn-sm" (click)="addItem()">
+          + Adicionar Item
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Produto</th>
+              <th style="width: 120px">Quantidade</th>
+              <th style="width: 150px">Preço Unit.</th>
+              <th style="width: 150px">Subtotal</th>
+              <th style="width: 80px">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itens.controls; track $index; let i = $index) {
+              <tr [formGroup]="$any(item)">
+                <td>
+                  <select
+                    class="form-select form-select-sm"
+                    formControlName="produtoId"
+                  >
+                    <option value="">Selecione</option>
+                    @for (produto of produtos; track produto.id) {
+                      <option [value]="produto.id">
+                        {{ produto.descricao }} (Estoque: {{ produto.estoque }})
+                      </option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    class="form-control form-control-sm"
+                    formControlName="quantidade"
+                    min="1"
+                  />
+                </td>
+                <td class="text-end">
+                  {{ getProductPrice(item.get('produtoId')?.value) | currency: 'BRL' }}
+                </td>
+                <td class="text-end fw-bold">
+                  {{ getItemSubtotal(i) | currency: 'BRL' }}
+                </td>
+                <td>
+                  @if (itens.length > 1) {
+                    <button
+                      type="button"
+                      class="btn btn-danger btn-sm"
+                      (click)="removeItem(i)"
+                    >
+                      &times;
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Total:</td>
+              <td class="text-end fw-bold fs-5">{{ getTotal() | currency: 'BRL' }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="saving">
+      @if (saving) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      Criar Pedido
+    </button>
+  </form>
+}

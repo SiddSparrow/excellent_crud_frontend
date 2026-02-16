@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/produtos">CRUD System</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        @if (isAdmin) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/clientes" routerLinkActive="active">Clientes</a>
+          </li>
+        }
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/produtos" routerLinkActive="active">Produtos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/pedidos" routerLinkActive="active">Pedidos</a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center">
+        <span class="badge bg-info me-3">{{ authService.getUserRole() }}</span>
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">Sair</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid mt-4">
+  <router-outlet />
+</div>
